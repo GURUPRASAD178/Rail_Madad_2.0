@@ -1,0 +1,82 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f3f4f6, #ffffff);
+    color: #333;
+}
+
+.navbar {
+    background: linear-gradient(to right, #FF6B35, #F7931E);
+}
+
+.navbar-brand,
+.nav-link,
+.btn {
+    color: white !important;
+    font-weight: 500;
+}
+
+.hero {
+    background: linear-gradient(to right, rgba(255, 107, 53, 0.9), rgba(247, 147, 30, 0.9)), url('hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: scale(1.02);
+    transition: 0.3s;
+}
+
+.section-title {
+    margin: 3rem 0 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+footer {
+    background: #343a40;
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+footer a {
+    color: #f7931e;
+    text-decoration: none;
+}
+
+.footer-link {
+    color: #ddd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #00e676;
+    /* Green highlight on hover */
+    text-decoration: underline;
+}
+
+.footer-icon:hover {
+    color: #f57c00;
+    /* Orange hover for icons */
+}

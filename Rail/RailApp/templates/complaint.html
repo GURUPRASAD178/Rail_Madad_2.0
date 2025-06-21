@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}File Complaint - Rail Madad AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main-content">
+        <h2><i class="fas fa-plus-circle"></i> File New Complaint</h2>
+
+        <div class="alert alert-success">
+            <i class="fas fa-info-circle"></i>
+            Our AI will auto-categorize and route your complaint for faster resolution.
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="pnr">PNR Number</label>
+                <input type="text" id="pnr" class="form-control" placeholder="Enter PNR">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" class="form-control">
+                    <option value="">(AI Auto-detect)</option>
+                    <option value="cleanliness">Cleanliness</option>
+                    <option value="food">Food & Catering</option>
+                    <option value="staff">Staff Behavior</option>
+                    <option value="facilities">Coach & Facilities</option>
+                    <option value="punctuality">Train Delays</option>
+                    <option value="security">Security Issues</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" class="form-control" rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Upload Evidence</label>
+                <div class="file-upload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop or click to upload</p>
+                    <input type="file" multiple style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Mobile Number</label>
+                <input type="tel" id="phone" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-control">
+            </div>
+
+            <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
