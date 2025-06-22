@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin - Complaints{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Complaints Dashboard</h2>
+
+    <!-- Search Bar -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <input type="text" id="searchInput" class="form-control"
+                placeholder="Search by name, email, phone, or PNR...">
+        </div>
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary">
+                <a href="{% url 'classified' %}" class="text-white btn">Classified Table</a>
+                </a>
+            </button>
+        </div>
+    </div>
+
+    <!-- Complaints Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped align-middle text-center" id="complaintsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Subject</th>
+                    <th>Complaint</th>
+                    <th>Category</th>
+                    <th>Sentiment</th>
+                    <th>Image Classification</th>
+                    <th>PNR</th>
+                    <th>Image</th>
+                    <th>Created At</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td>{{ complaint.name }}</td>
+                    <td>{{ complaint.email }}</td>
+                    <td>{{ complaint.phone }}</td>
+                    <td>{{ complaint.subject }}</td>
+                    <td style="max-width: 200px;">{{ complaint.complaint_text|truncatechars:100 }}</td>
+                    <td>{{ complaint.category }}</td>
+                    <td>{{ complaint.sentiment }}</td>
+                    <td>{{ complaint.image_classification }}</td>
+                    <td>{{ complaint.pnr_number }}</td>
+                    <td>
+                        {% if complaint.complaint_image %}
+                        <a href="{{ complaint.complaint_image.url }}" target="_blank">
+                            <img src="{{ complaint.complaint_image.url }}" alt="Image" class="img-thumbnail"
+                                style="height: 60px;">
+                        </a>
+                        {% else %}
+                        No Image
+                        {% endif %}
+                    </td>
+                    <td>{{ complaint.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if complaint.is_resolved %}
+                        <span class="badge bg-success">Resolved</span>
+                        {% else %}
+                        <span class="badge bg-danger">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JS for Search -->
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        const searchText = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#complaintsTable tbody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}
