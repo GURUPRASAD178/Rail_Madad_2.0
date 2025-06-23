@@ -1,12 +1,20 @@
-from django.shortcuts import render
-from django.contrib import messages
-from . models import Complaint
-from django.contrib.auth import authenticate, login
+from PIL import Image
+from collections import defaultdict
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from transformers import pipeline
+from .models import Complaint
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
 
-# views.py
+# Hugging Face pipelines
+sentiment_classifier = pipeline("sentiment-analysis")
+image_classifier = pipeline("zero-shot-image-classification")
+
+
 def index(request):
     features = [
         {"title": "AI Categorization", "icon": "fa-brain", "text": "Complaints auto-categorized using NLP.", "gradient": "#2196f3, #00bcd4"},
@@ -19,7 +27,6 @@ def index(request):
 
 def file_complaint(request):
     if request.method == "POST":
-        # Extract fields
         pnr = request.POST.get("pnr", "UNKNOWN")
         category = request.POST.get("category", "Uncategorized")
         subject = request.POST.get("subject")
@@ -28,11 +35,19 @@ def file_complaint(request):
         email = request.POST.get("email")
         evidence_files = request.FILES.getlist("evidence")
 
-        # Run AI classification (optional)
-        # For example:
-        # category = ai_predict_category(subject + " " + description)
+        sentiment_result = sentiment_classifier(description)
+        sentiment = sentiment_result[0]['label']
 
-        # Save complaint (supporting only one evidence file for now)
+        image_classification = "No image provided"
+        if evidence_files:
+            try:
+                image = Image.open(evidence_files[0])
+                candidate_labels = ["cleanliness", "security", "emergency"]
+                image_result = image_classifier(image, candidate_labels=candidate_labels)
+                image_classification = image_result[0]['label']
+            except:
+                image_classification = "Image processing failed"
+
         complaint = Complaint.objects.create(
             pnr_number=pnr,
             category=category,
@@ -40,6 +55,8 @@ def file_complaint(request):
             complaint_text=description,
             phone=phone,
             email=email,
+            sentiment=sentiment,
+            image_classification=image_classification,
             complaint_image=evidence_files[0] if evidence_files else None
         )
 
@@ -60,13 +77,12 @@ def track_complaint(request):
         except Complaint.DoesNotExist:
             complaint = None
 
-    return render(request, 'track.html', {
-        'complaint': complaint,
-        'query': query
-    })
+    return render(request, 'track.html', {'complaint': complaint, 'query': query})
+
 
 def analytics(request):
     return render(request, 'analytics.html')
+
 
 def help_support(request):
     return render(request, 'help.html')
@@ -74,11 +90,7 @@ def help_support(request):
 
 def login_view(request):
     if request.method == 'POST':
-        user = authenticate(
-            request, 
-            username=request.POST['username'], 
-            password=request.POST['password']
-        )
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user:
             login(request, user)
             return redirect('admins')
@@ -88,10 +100,44 @@ def login_view(request):
 
 
 def admin(request):
-    complaints = Complaint.objects.all().order_by('-created_at')  # latest first
+    complaints = Complaint.objects.all().order_by('-created_at')
     return render(request, 'admin.html', {'complaints': complaints})
 
 
 def classified(request):
-    complaints = Complaint.objects.all().order_by('-created_at')  # latest first
-    return render(request, 'classified.html', {'grouped_complaints': complaints})
+    cleanliness_complaints = Complaint.objects.filter(image_classification="cleanliness").order_by('-created_at')
+    emergency_complaints = Complaint.objects.filter(image_classification="emergency").order_by('-created_at')
+    security_complaints = Complaint.objects.filter(image_classification="security").order_by('-created_at')
+
+    return render(request, 'classified.html', {
+        'cleanliness_complaints': cleanliness_complaints,
+        'emergency_complaints': emergency_complaints,
+        'security_complaints': security_complaints,
+    })
+
+
+def resolve_complaint(request, complaint_id):
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    # Mark as resolved
+    complaint.is_resolved = True
+    complaint.save()
+
+    # Send email
+    send_mail(
+        subject='Rail Madad - Your Complaint Has Been Resolved',
+        message=f"Dear {complaint.name},\n\nYour complaint (PNR: {complaint.pnr_number}) has been resolved. Thank you for reporting.\n\n-- Rail Madad AI Team",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[complaint.email],
+        fail_silently=False,
+    )
+
+    messages.success(request, f"Complaint by {complaint.email} marked as resolved and email sent.")
+    return redirect('classified') 
+
+
+def delete_complaint(request, complaint_id):
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+    complaint.delete()
+    messages.success(request, "Complaint deleted successfully.")
+    return redirect('admin')

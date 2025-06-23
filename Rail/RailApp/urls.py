@@ -12,6 +12,8 @@ urlpatterns = [
     path('track/', views.track_complaint, name='track'),
     path('analytics/', views.analytics, name='analytics'),
     path('help/', views.help_support, name='help'),
+    path('resolve/<int:complaint_id>/', views.resolve_complaint, name='resolve_complaint'),
+    path('delete_complaint/<int:complaint_id>/', views.delete_complaint, name='delete_complaint'),
 
 ]    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
