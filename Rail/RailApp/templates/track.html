@@ -44,8 +44,7 @@
             <div class="mt-4">
                 <h5 class="text-secondary">Tracking Timeline</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Complaint Submitted</strong> – {{ complaint.created_at|date:"d M
-                        Y - h:i A" }}</li>
+                    <li class="list-group-item"><strong>Complaint Submitted</strong> – {{ complaint.created_at|date:"d M Y - h:i A" }}</li>
                     <li class="list-group-item"><strong>AI Categorization</strong> – Shortly after submission</li>
                     <li class="list-group-item"><strong>Under Review</strong> – In process</li>
                     {% if complaint.is_resolved %}

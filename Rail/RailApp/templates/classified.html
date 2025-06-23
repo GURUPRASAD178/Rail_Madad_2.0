@@ -5,6 +5,7 @@
 <div class="container py-5">
     <h2 class="text-center mb-4">Complaints Categorized by Type & Priority</h2>
 
+    <a href="{% url 'admin' %}" class="btn btn-primary">Admin Home</a>
     {% for category, complaints in grouped_complaints.items %}
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-primary text-white">
